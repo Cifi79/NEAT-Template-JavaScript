@@ -19,5 +19,8 @@ Evolutionary "Steering Behavior" Simulation
 
 **Screenshots**
 
-![The brain](image%5Cbrain.png = 250x100)
-![Life on screen](image%5Cvehicles.png =250x100)
+*The brain*
+![The brain](image/brain.png)
+
+*Life on screen*
+![Life on screen](image/vehicles.png)

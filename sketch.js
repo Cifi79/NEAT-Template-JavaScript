@@ -1,7 +1,13 @@
-//this is a template to add a NEAT ai to any game
-//note //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<replace
-//this means that there is some information specific to the game to input here
-
+//NEAT implementation by Code-Bullet
+//
+//https://github.com/Code-Bullet/NEAT-Template-JavaScript
+//
+//Vehicles implementation by Daniel Shiffmann
+//
+//Nature of Code: Intelligence and Learning
+//https://github.com/shiffman/NOC-S17-2-Intelligence-Learning
+//
+//Evolutionary "Steering Behavior" Simulation
 
 var nextConnectionNo = 1000;
 var population;

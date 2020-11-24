@@ -1,10 +1,23 @@
 class Population {
 
-  constructor(size) {
+  constructor(size, foodAmount) {
+    //--------------------------------------------------------------------------------------------------------------------------------------------------
+    // An array of "food"
+    this.food = [];
+    // How big is the food?
+    let foodRadius = 8;
+    // How much food should there?
+    this.foodAmount = foodAmount;
+
+    // Don't put food near the edge
+    let foodBuffer = 50;
+    
     this.players = []; //new ArrayList<Player>();
     this.bestPlayer; //the best ever player
+    this.bestPlayerIndex = 0; //index of best player to highlight
     this.bestScore = 0; //the score of the best ever player
     this.globalBestScore = 0;
+
     this.gen = 1;
     this.innovationHistory = []; // new ArrayList<connectionHistory>();
     this.genPlayers = []; //new ArrayList<Player>();
@@ -18,23 +31,66 @@ class Population {
       this.players[this.players.length - 1].brain.mutate(this.innovationHistory);
       this.players[this.players.length - 1].brain.generateNetwork();
     }
+
+    //create initial food
+    for (let i = 0; i < this.foodAmount;i++)
+      this.food[i] = new Food();
   }
+
+  updatefood(){
+    // Eat any food
+    for (let v of this.players) {
+      v.eat(this.food);
+    }
+
+    // Always keep a minimum amount of food
+    while (this.food.length < this.foodAmount) {
+      this.food.push(new Food());
+    }
+  }
+
+  showFood(){
+      // Draw all the food
+    for (let i = this.food.length - 1; i > 0; i--) {
+      this.food[i].display();
+      this.food[i].update();
+      if(this.food[i].health <= 0)
+        this.food.splice(i, 1);
+    }
+  }
+
   updateAlive() {
+    //udpdate data
+    for(var j=0;j<cycles;j++){
       for (var i = 0; i < this.players.length; i++) {
         if (!this.players[i].dead) {
           this.players[i].look(); //get inputs for brain
-          this.players[i].think(); //use outputs from neural network
+          this.players[i].think(this.food, i); //use outputs from neural network
           this.players[i].update(); //move the player according to the outputs from the neural network
-          if (!showNothing && (!showBest || i == 0)) {
-            this.players[i].show();
-          }
-          if (this.players[i].score > this.globalBestScore) {
-            this.globalBestScore = this.players[i].score;
-          }
         }
       }
-
+      this.updatefood();
     }
+
+    let tmpBestHeath = 0;
+    //show data
+    for (var i = 0; i < this.players.length; i++) {
+      if (!this.players[i].dead) {
+        if (!showNothing && (!showBest || i == 0)) {
+          this.players[i].show();
+        }
+        if (this.players[i].health > tmpBestHeath) {
+          tmpBestHeath = this.players[i].health;
+          this.bestPlayerIndex = i;
+        }
+      }
+    }
+    if (!showNothing)
+      {
+        this.players[this.bestPlayerIndex].highlight();
+        this.showFood();
+      }
+  }
     //------------------------------------------------------------------------------------------------------------------------------------------
     //returns true if all the players are dead      sad
   done() {
@@ -66,6 +122,9 @@ class Population {
   //------------------------------------------------------------------------------------------------------------------------------------------------
   //this function is called when all the players in the this.players are dead and a newthis.generation needs to be made
   naturalSelection() {
+    //renew all the food
+    for (let i = 0; i < this.foodAmount;i++)
+    this.food[i] = new Food();
 
     // this.batchNo = 0;
     var previousBest = this.players[0];
@@ -239,7 +298,7 @@ class Population {
         if (!this.players[i].dead) {
           aliveCount++;
           this.players[i].look(); //get inputs for brain
-          this.players[i].think(); //use outputs from neural network
+          this.players[i].think(this.food); //use outputs from neural network
           this.players[i].update(); //move the player according to the outputs from the neural network
           if (!showNothing && (!showBest || i == 0)) {
             this.players[i].show();
@@ -250,6 +309,7 @@ class Population {
         }
       }
     }
+
 
 
     if (aliveCount == 0) {

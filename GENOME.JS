@@ -95,7 +95,7 @@ class Genome {
     for (var i = 0; i < this.inputs; i++) {
       this.nodes[i].outputValue = inputValues[i];
     }
-    this.nodes[this.biasNode].outputValue = 1; //output of bias is 1
+    this.nodes[this.biasNode].outputValue = 0;//1; //disable bias node
 
     for (var i = 0; i < this.network.length; i++) { //for each node in the network engage it(see node class for what this does)
       this.network[i].engage();
@@ -292,7 +292,7 @@ class Genome {
 
 
     var rand1 = random(1);
-    if (rand1 < 0.8) { // 80% of the time mutate weights
+    if (rand1 < 0.6) { // 80% of the time mutate weights
 
       for (var i = 0; i < this.genes.length; i++) {
         this.genes[i].mutateWeight();
@@ -301,14 +301,14 @@ class Genome {
 
     //5% of the time add a new connection
     var rand2 = random(1);
-    if (rand2 < 0.05) {
+    if (rand2 < 0.1) {
 
       this.addConnection(innovationHistory);
     }
 
     //1% of the time add a node
     var rand3 = random(1);
-    if (rand3 < 0.01) {
+    if (rand3 < 0.1) {
 
       this.addNode(innovationHistory);
     }
@@ -429,10 +429,10 @@ class Genome {
     var allNodes = []; //new ArrayList<ArrayList<Node>>();
     var nodePoses = []; // new ArrayList<PVector>();
     var nodeNumbers = []; // new ArrayList<Integer>();
-
+    var nodeOutputValue =  []; // output value of all nodes
     //get the positions on the screen that each node is supposed to be in
 
-
+    push();
     //split the this.nodes varo layers
     for (var i = 0; i < this.layers; i++) {
       var temp = []; // new ArrayList<Node>();
@@ -452,15 +452,19 @@ class Genome {
         var y = startY + float((j + 1.0) * h) / float(allNodes[i].length + 1.0);
         nodePoses.push(createVector(x, y));
         nodeNumbers.push(allNodes[i][j].number);
+        nodeOutputValue.push(allNodes[i][j].outputValue);
       }
     }
 
     //draw connections
-    stroke(0);
+    let blue = color(0, 0, 255, 255);
+    let red = color(255, 0, 0, 255);
+    let col = color(255, 0, 0, 255);
+    stroke(255);
     strokeWeight(2);
     for (var i = 0; i < this.genes.length; i++) {
       if (this.genes[i].enabled) {
-        stroke(0);
+        stroke(255);
       } else {
         stroke(100);
       }
@@ -468,28 +472,27 @@ class Genome {
       var to;
       from = nodePoses[nodeNumbers.indexOf(this.genes[i].fromNode.number)];
       to = nodePoses[nodeNumbers.indexOf(this.genes[i].toNode.number)];
-      if (this.genes[i].weight > 0) {
-        stroke(255, 0, 0);
-      } else {
-        stroke(0, 0, 255);
-      }
+
+      col = lerpColor(red, blue, this.genes[i].weight);
+      stroke(col);
       strokeWeight(map(abs(this.genes[i].weight), 0, 1, 0, 3));
       line(from.x, from.y, to.x, to.y);
     }
 
     //draw this.nodes last so they appear ontop of the connection lines
     for (var i = 0; i < nodePoses.length; i++) {
-      fill(255);
-      stroke(0);
+      col = lerpColor(red, blue, map(nodeOutputValue[i], 1, -1, 1, 0));
+      fill(col);
+      stroke(255);
       strokeWeight(1);
       ellipse(nodePoses[i].x, nodePoses[i].y, 20, 20);
       textSize(10);
-      fill(0);
+      fill(255);
       textAlign(CENTER, CENTER);
       text(nodeNumbers[i], nodePoses[i].x, nodePoses[i].y);
 
     }
-
+    pop();
     // print out neural network info text
     // textAlign(RIGHT);
     // fill(255);
